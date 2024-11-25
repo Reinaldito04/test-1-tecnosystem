@@ -1,8 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React from "react";
 import FormExample from "./FormExample";
-
-const Card = () => {
+const Card = ({ toastActive, setToastActive ,result,type,setResult,setType }: { toastActive: boolean; setToastActive: React.Dispatch<React.SetStateAction<boolean>>; result: string; type: string | 'success' | 'error';setResult: React.Dispatch<React.SetStateAction<string>>;setType: React.Dispatch<React.SetStateAction<string>>}) => {
   return (
     <View style={styles.card}>
       {/* Título */}
@@ -20,7 +19,7 @@ const Card = () => {
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>CONECTARSE A INTERNET</Text>
       </TouchableOpacity>
-      <FormExample />
+      <FormExample result={result} toastActive={toastActive} setToastActive={setToastActive} type={type} setResult={setResult} setType={setType} />
     </View>
   );
 };

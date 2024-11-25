@@ -6,10 +6,24 @@ import {
   TouchableOpacity,
 } from "react-native";
 import axios from "axios";
-import { useState ,} from "react";
-import Spinner from 'react-native-loading-spinner-overlay';
-import Toast from 'react-native-toast-message';
-const FormExample = () => {
+import { useState } from "react";
+import Spinner from "react-native-loading-spinner-overlay";
+
+const FormExample = ({
+  toastActive,
+  setToastActive,
+  result,
+  type,
+  setResult,
+  setType,
+}: {
+  toastActive: boolean;
+  setToastActive: React.Dispatch<React.SetStateAction<boolean>>;
+  result: string;
+  type: string | "success" | "error";
+  setResult: React.Dispatch<React.SetStateAction<string>>;
+  setType: React.Dispatch<React.SetStateAction<string>>;
+}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState([]);
@@ -18,44 +32,45 @@ const FormExample = () => {
   const onSubmit = async () => {
     setLoading(true);
     setErrors([]); // Limpiar errores previos
-   
-    try {
-        const response = await axios.post(
-          "http://10.90.0.123:8000/api/sanctum/token",
-          {
-            email,
-            password,
-          }
-        );
-        console.log(response.data);
-        Toast.show({
-            type: 'success',
-            text1: 'Inicio de sesión exitoso',
-            position: 'bottom',
-          
-            
-        })
-      } catch (err) {
-        console.error(err);
-        const errorData = err.response?.data;
-        if (Array.isArray(errorData?.errors)) {
-          setErrors(errorData.errors);
-        } else if (errorData?.message) {
-          setErrors([errorData.message]);
-        } else {
-          setErrors(["Error desconocido al iniciar sesión"]);
-        }
-      } finally {
-        setTimeout(() => {
-            setLoading(false);
 
-        }, 2000);
+    try {
+      const response = await axios.post(
+        "http://10.90.0.123:8000/api/sanctum/token",
+        { email, password }
+      );
+      console.log(response.data);
+      setToastActive(true); // Activar el toast
+      setResult("Inicio de sesión exitoso");
+      setType("success");
+    } catch (err) {
+      console.error(err);
+      const errorData = err.response?.data;
+      if (Array.isArray(errorData?.errors)) {
+        setErrors(errorData.errors);
+        setToastActive(true); // Activar el toast
+
+        setResult(errorData.message);
+        setType("error");
+      } else if (errorData?.message) {
+        setErrors([errorData.message]);
+        setToastActive(true); // Activar el toast
+
+        setResult(errorData.message);
+        setType("error");
+      } else {
+        setErrors(["Error desconocido al iniciar sesión"]);
+        setToastActive(true); // Activar el toast
+
+        setResult("Error desconocido al iniciar sesión");
+        setType("error");
       }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <View>
-        
       <View style={styles.container}>
         <TextInput
           placeholder="Email"
@@ -74,26 +89,23 @@ const FormExample = () => {
         />
       </View>
 
-      {loading ? (
-            <Spinner
-              visible={true}
-                size='large'
-                color="#fff"
-            overlayColor="rgba(0, 0, 0, 0.5)"
-              textStyle={styles.spinnerTextStyle}
-            />
-
-) : null}
-      <Toast />
+      {loading && (
+        <Spinner
+          visible={true}
+          size="large"
+          color="#fff"
+          overlayColor="rgba(0, 0, 0, 0.5)"
+        />
+      )}
 
       <TouchableOpacity
-        
         style={styles.button}
         onPress={onSubmit}
         disabled={loading}
       >
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
+
       {errors.length > 0 && (
         <View style={styles.errorContainer}>
           {errors.map((error, index) => (
@@ -103,8 +115,6 @@ const FormExample = () => {
           ))}
         </View>
       )}
-
-
     </View>
   );
 };
@@ -143,7 +153,7 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     marginTop: 10,
-    alignItems: "flex-start", // Opcional: para alinear los errores a la izquierda
+    alignItems: "flex-start",
   },
   errorText: {
     color: "red",
