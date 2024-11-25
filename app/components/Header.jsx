@@ -1,12 +1,31 @@
 import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
+import Toast from 'react-native-toast-message';
 
-const Header = () => {
+const Header = ({toastActive}) => {
+    useEffect(() => {
+      if (toastActive) {
+        Toast.show({
+          type: 'success',
+          text1: 'Inicio de sesión exitoso',
+          position: 'bottom',
+          visibilityTime: 3000,
+          autoHide: true,
+          topOffset: 30,
+          bottomOffset: 40,
+        });
+      }
+    })
   return (
+    <>
+    <Toast />
+    
     <View style={styles.header}>
       <Text style={styles.title}>TECNOSYSTEM </Text>
       <Text style={styles.title}>ZONA WIFI</Text>
     </View>
+    </>
+
   );
 };
 
